@@ -9,13 +9,8 @@
     <style>
         body { font-family: 'Noto Sans SC', sans-serif; background: #0f0f0f; }
         .bg-dots { background-image: radial-gradient(circle at 25px 25px, rgba(249, 115, 22, 0.15) 2px, transparent 0); background-size: 50px 50px; }
-        .bg-gradient-mesh {
-            background: radial-gradient(ellipse at 20% 20%, rgba(249, 115, 22, 0.25) 0%, transparent 50%),
-                        radial-gradient(ellipse at 80% 80%, rgba(251, 146, 60, 0.2) 0%, transparent 50%),
-                        linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
-        }
+        .bg-gradient-mesh { background: radial-gradient(ellipse at 20% 20%, rgba(249, 115, 22, 0.25) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(251, 146, 60, 0.2) 0%, transparent 50%), linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%); }
         .glow-card { background: linear-gradient(145deg, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.98)); border: 1px solid rgba(249, 115, 22, 0.2); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4); }
-        .glow-card:hover { border-color: rgba(249, 115, 22, 0.4); }
         .dark-input { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); color: #e5e5e5; }
         .dark-input:focus { border-color: rgba(249, 115, 22, 0.6); box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15); outline: none; }
         .dark-input::placeholder { color: rgba(255, 255, 255, 0.3); }
@@ -28,20 +23,16 @@
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .loading-spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
         .story-output { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.08); max-height: 500px; overflow-y: auto; }
-        .text-gradient { background: linear-gradient(135deg, #F97316, #FB923C, #fdba74); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .icon-glow { background: linear-gradient(135deg, rgba(249, 115, 22, 0.3), rgba(251, 146, 60, 0.2)); box-shadow: 0 0 20px rgba(249, 115, 22, 0.3); }
         .tags-section { background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.05); }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-mesh bg-dots">
-    <!-- 顶部导航 -->
     <nav class="sticky top-0 z-50 backdrop-blur-xl bg-black/30 border-b border-white/5">
         <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl flex items-center justify-center icon-glow">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
                 </div>
                 <span class="text-lg font-medium text-white">AI小说创作助手</span>
             </div>
@@ -53,25 +44,20 @@
     </nav>
 
     <main class="max-w-5xl mx-auto px-6 py-12">
-        <!-- 创建新故事 -->
         <div class="glow-card rounded-2xl p-8 mb-8">
             <div class="flex items-center gap-3 mb-6">
                 <div class="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                 </div>
                 <span class="text-white/80 font-medium text-lg">创建新故事</span>
             </div>
 
-            <form id="storyForm" class="space-y-6">
-                <textarea id="outline" name="outline" rows="4" class="w-full px-5 py-4 dark-input rounded-xl transition-all resize-none text-base" placeholder="请输入你的故事想法，例如：一位年轻的程序员在一次意外中获得了预知未来的能力..." required></textarea>
+            <div class="space-y-6">
+                <textarea id="outline" rows="4" class="w-full px-5 py-4 dark-input rounded-xl transition-all resize-none text-base" placeholder="请输入你的故事想法，例如：一位年轻的程序员在一次意外中获得了预知未来的能力..."></textarea>
 
                 <div class="grid md:grid-cols-2 gap-6">
                     <div class="tags-section rounded-xl p-5">
-                        <div class="flex items-center gap-2 mb-4">
-                            <span class="text-sm text-white/60">选择类型</span>
-                        </div>
+                        <div class="flex items-center gap-2 mb-4"><span class="text-sm text-white/60">选择类型</span></div>
                         <div class="flex flex-wrap gap-2" id="genreOptions">
                             <button type="button" class="tag-btn active" data-value="scifi">🚀 科幻</button>
                             <button type="button" class="tag-btn" data-value="cultivation">⚡ 修仙</button>
@@ -83,20 +69,18 @@
                             <button type="button" class="tag-btn" data-value="romance">💕 浪漫</button>
                             <button type="button" class="tag-btn" data-value="historical">📜 历史</button>
                         </div>
-                        <input type="hidden" name="genre" value="scifi" id="genreInput">
+                        <input type="hidden" id="genreInput" value="scifi">
                     </div>
 
                     <div class="tags-section rounded-xl p-5">
-                        <div class="flex items-center gap-2 mb-4">
-                            <span class="text-sm text-white/60">字数限制</span>
-                        </div>
+                        <div class="flex items-center gap-2 mb-4"><span class="text-sm text-white/60">字数限制</span></div>
                         <div class="flex flex-wrap gap-2" id="wordCountOptions">
                             <button type="button" class="tag-btn" data-value="1000">1,000字</button>
                             <button type="button" class="tag-btn" data-value="3000">3,000字</button>
                             <button type="button" class="tag-btn active" data-value="5000">5,000字</button>
                             <button type="button" class="tag-btn" data-value="10000">1万字</button>
                         </div>
-                        <input type="hidden" name="wordCount" value="5000" id="wordCountInput">
+                        <input type="hidden" id="wordCountInput" value="5000">
                     </div>
                 </div>
 
@@ -105,42 +89,32 @@
                     <span id="charCount">0 字</span>
                 </div>
 
-                <button type="submit" id="submitBtn" class="btn-generate w-full py-4 text-white rounded-xl font-medium text-lg flex items-center justify-center gap-3 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
+                <button type="button" id="submitBtn" class="btn-generate w-full py-4 text-white rounded-xl font-medium text-lg flex items-center justify-center gap-3 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                     <span id="btnText">开始创作</span>
                 </button>
-            </form>
+            </div>
 
             <div id="resultSection" class="mt-8 hidden">
                 <div class="flex items-center gap-3 mb-4">
                     <div class="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
                     </div>
                     <span class="text-white/80 font-medium">创作完成</span>
                     <span id="storyWordCount" class="text-sm text-white/40"></span>
                 </div>
                 <div id="storyContent" class="story-output p-6 rounded-xl text-white/80 leading-relaxed whitespace-pre-wrap"></div>
                 <div class="mt-4 flex justify-end gap-3">
-                    <button onclick="copyStory()" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white/60 text-sm transition-all flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                        复制内容
-                    </button>
+                    <button onclick="copyStory()" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white/60 text-sm transition-all flex items-center gap-2">复制内容</button>
                     <button onclick="newStory()" class="px-4 py-2 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 text-sm transition-all">创作新故事</button>
                 </div>
             </div>
         </div>
 
-        <!-- 历史记录 -->
         <div class="glow-card rounded-2xl p-8">
             <div class="flex items-center gap-3 mb-6">
                 <div class="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
                 <span class="text-white/80 font-medium text-lg">创作历史</span>
             </div>
@@ -153,7 +127,6 @@
     <script>
         const API_URL = window.location.origin + '/api';
         
-        // 检查登录
         const token = localStorage.getItem('token');
         const user = JSON.parse(localStorage.getItem('user') || 'null');
         
@@ -163,12 +136,10 @@
         
         document.getElementById('userName').textContent = user.username;
         
-        // 字符计数
         document.getElementById('outline').addEventListener('input', function() {
             document.getElementById('charCount').textContent = this.value.length + ' 字';
         });
         
-        // 类型按钮
         document.querySelectorAll('#genreOptions .tag-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('#genreOptions .tag-btn').forEach(b => b.classList.remove('active'));
@@ -177,7 +148,6 @@
             });
         });
         
-        // 字数按钮
         document.querySelectorAll('#wordCountOptions .tag-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('#wordCountOptions .tag-btn').forEach(b => b.classList.remove('active'));
@@ -186,9 +156,7 @@
             });
         });
         
-        // 提交表单
-        document.getElementById('storyForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        document.getElementById('submitBtn').addEventListener('click', async function() {
             const outline = document.getElementById('outline').value;
             const genre = document.getElementById('genreInput').value;
             const wordCount = document.getElementById('wordCountInput').value;
@@ -207,54 +175,14 @@
                     body: JSON.stringify({ outline, genre, wordCount: parseInt(wordCount) })
                 });
                 
-                // 处理错误状态码
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({ error: '请求失败' }));
-                    alert('错误 (' + response.status + '): ' + (errorData.error || '未知错误'));
+                    alert('错误: ' + (errorData.error || '未知错误'));
                     submitBtn.disabled = false;
                     btnText.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> 开始创作';
                     return;
                 }
                 
-                const data = await response.json();
-                const response = await fetch(API_URL + '/generate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                    body: JSON.stringify({ outline, genre, wordCount: parseInt(wordCount) })
-                });
-                
-                // 处理 401 未授权错误
-                if (response.status === 401) {
-                    alert('登录已失效，请重新登录');
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-                    window.location.href = '/login';
-                    return;
-                }
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    document.getElementById('storyContent').textContent = data.story;
-                    document.getElementById('storyWordCount').textContent = '· ' + data.word_count + ' 字';
-                    document.getElementById('resultSection').classList.remove('hidden');
-                    document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
-                    loadHistory();
-                } else {
-                    alert(data.error || '创作失败');
-                }
-            } catch (error) {
-                alert('请求失败: ' + error.message);
-            } finally {
-                submitBtn.disabled = false;
-                btnText.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> 开始创作';
-            }
-        });
-                const response = await fetch(API_URL + '/generate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                    body: JSON.stringify({ outline, genre, wordCount: parseInt(wordCount) })
-                });
                 const data = await response.json();
                 
                 if (data.success) {
@@ -291,8 +219,6 @@
             window.location.href = '/login';
         }
         
-        // 加载历史记录
-        // 加载历史记录
         async function loadHistory() {
             try {
                 const response = await fetch(API_URL + '/stories', {
@@ -306,27 +232,6 @@
                     return;
                 }
                 
-                const data = await response.json();
-                const list = document.getElementById('historyList');
-                
-                if (data.stories && data.stories.length > 0) {
-                    list.innerHTML = data.stories.map(s => `
-                        <div class="p-4 rounded-xl bg-white/5 border border-white/10">
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="px-2 py-1 rounded bg-orange-500/20 text-orange-400 text-xs">${s.genre}</span>
-                                <span class="text-white/40 text-xs">${s.word_count}字</span>
-                            </div>
-                            <p class="text-white/60 text-sm mb-2">${s.outline.substring(0, 80)}...</p>
-                            <p class="text-white/40 text-xs">${new Date(s.created_at).toLocaleString()}</p>
-                        </div>
-                    `).join('');
-                }
-            } catch (e) { console.error(e); }
-        }
-            try {
-                const response = await fetch(API_URL + '/stories', {
-                    headers: { 'Authorization': 'Bearer ' + token }
-                });
                 const data = await response.json();
                 const list = document.getElementById('historyList');
                 
