@@ -206,6 +206,39 @@
                     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
                     body: JSON.stringify({ outline, genre, wordCount: parseInt(wordCount) })
                 });
+                
+                // 处理 401 未授权错误
+                if (response.status === 401) {
+                    alert('登录已失效，请重新登录');
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('storyContent').textContent = data.story;
+                    document.getElementById('storyWordCount').textContent = '· ' + data.word_count + ' 字';
+                    document.getElementById('resultSection').classList.remove('hidden');
+                    document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+                    loadHistory();
+                } else {
+                    alert(data.error || '创作失败');
+                }
+            } catch (error) {
+                alert('请求失败: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                btnText.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> 开始创作';
+            }
+        });
+                const response = await fetch(API_URL + '/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ outline, genre, wordCount: parseInt(wordCount) })
+                });
                 const data = await response.json();
                 
                 if (data.success) {

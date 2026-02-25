@@ -7,6 +7,39 @@ from models import db, User, Story
 import requests
 
 app = Flask(__name__, static_folder='static')
+CORS(app, supports_credentials=True, origins=['*'])
+
+# 配置
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///ainovel.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-key-change-in-production')
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 86400 * 7  # 7天有效期
+
+# JWT错误处理
+@jwt.unauthorized_loader
+def unauthorized_callback(error):
+    return jsonify({'error': '请先登录', 'redirect': '/login'}), 401
+
+@jwt.invalid_token_loader
+def invalid_token_callback(error):
+    return jsonify({'error': '登录已失效，请重新登录', 'redirect': '/login'}), 401
+
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    return jsonify({'error': '登录已过期，请重新登录', 'redirect': '/login'}), 401
+
+# 初始化
+db.init_app(app)
+jwt = JWTManager(app)
+from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_sqlalchemy import SQLAlchemy
+from models import db, User, Story
+import requests
+
+app = Flask(__name__, static_folder='static')
 CORS(app, supports_credentials=True)
 
 # 配置
@@ -88,6 +121,24 @@ def register():
 
 @app.route('/api/login', methods=['POST'])
 def login():
+    if not request.is_json:
+        return jsonify({'error': '请求格式错误'}), 400
+    
+    data = request.json
+    if not data:
+        return jsonify({'error': '请求数据为空'}), 400
+        
+    username = data.get('username', '')
+    password = data.get('password', '')
+    
+    if not username or not password:
+        return jsonify({'error': '请填写用户名和密码'}), 400
+    
+    username = username.strip()
+    user = User.query.filter_by(username=username).first()
+    if not user or not user.check_password(password):
+        return jsonify({'error': '用户名或密码错误'}), 401
+def login():
     data = request.json
     username = data.get('username', '').strip()
     password = data.get('password', '')
@@ -164,7 +215,48 @@ def generate_story():
             'max_tokens': 8192
         }
 
-        response = requests.post(
+        try:
+            # 调试：打印请求信息
+            print(f"调用DeepSeek API, outline长度: {len(outline)}, genre: {genre}, word_count: {word_count}")
+            
+            # 调用 DeepSeek API
+            headers = {
+                'Authorization': f'Bearer {DEEPSEEK_API_KEY}',
+                'Content-Type': 'application/json'
+            }
+
+            payload = {
+                'model': 'deepseek-chat',
+                'messages': [
+                    {'role': 'system', 'content': system_prompt},
+                    {'role': 'user', 'content': user_prompt}
+                ],
+                'temperature': 0.8,
+                'max_tokens': min(word_count * 2, 8192)  # 限制token数量
+            }
+
+            response = requests.post(
+                DEEPSEEK_API_URL,
+                headers=headers,
+                json=payload,
+                timeout=120
+            )
+
+            # 打印响应状态码用于调试
+            print(f"DeepSeek API响应状态: {response.status_code}")
+            
+            if response.status_code != 200:
+                error_detail = response.text
+                print(f"API错误响应: {error_detail}")
+                return jsonify({'error': f'API调用失败 ({response.status_code}): {error_detail[:200]}'}), 500
+
+            result = response.json()
+            
+            # 检查响应格式
+            if 'choices' not in result or len(result['choices']) == 0:
+                return jsonify({'error': 'API返回格式异常'}), 500
+            
+            story_content = result['choices'][0]['message']['content']
             DEEPSEEK_API_URL,
             headers=headers,
             json=payload,
