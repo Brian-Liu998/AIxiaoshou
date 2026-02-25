@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - AI小说创作助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans SC', sans-serif; background: #0f0f0f; }
+        .bg-gradient-mesh {
+            background: radial-gradient(ellipse at 20% 20%, rgba(249, 115, 22, 0.25) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 80%, rgba(251, 146, 60, 0.2) 0%, transparent 50%),
+                        linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+        }
+        .glow-card {
+            background: linear-gradient(145deg, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.98));
+            border: 1px solid rgba(249, 115, 22, 0.2);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+        .dark-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e5e5e5;
+        }
+        .dark-input:focus {
+            border-color: rgba(249, 115, 22, 0.6);
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+            outline: none;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #F97316 0%, #FB923C 100%);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(249, 115, 22, 0.5);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #F97316, #FB923C, #fdba74);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-mesh flex items-center justify-center">
+    <div class="w-full max-w-md px-6">
+        <div class="text-center mb-8">
+            <a href="/" class="inline-flex items-center gap-3 mb-6">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.3), rgba(251, 146, 60, 0.2)); box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                </div>
+                <span class="text-2xl font-bold text-white">AI小说创作助手</span>
+            </a>
+            <h1 class="text-3xl font-bold text-white">欢迎回来</h1>
+            <p class="text-white/50 mt-2">登录你的账号开始创作</p>
+        </div>
+
+        <div class="glow-card rounded-2xl p-8">
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm text-white/60 mb-2">用户名</label>
+                    <input type="text" name="username" required class="w-full px-4 py-3 dark-input rounded-xl" placeholder="请输入用户名">
+                </div>
+                <div>
+                    <label class="block text-sm text-white/60 mb-2">密码</label>
+                    <input type="password" name="password" required class="w-full px-4 py-3 dark-input rounded-xl" placeholder="请输入密码">
+                </div>
+                <button type="submit" class="btn-primary w-full py-4 text-white rounded-xl font-medium transition-all">
+                    登录
+                </button>
+            </form>
+            <div class="mt-6 text-center text-white/50">
+                还没有账号？ <a href="/register" class="text-orange-400 hover:underline">立即注册</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin + '/api';
+        
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = {
+                username: formData.get('username'),
+                password: formData.get('password')
+            };
+            
+            try {
+                const response = await fetch(API_URL + '/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                
+                if (result.access_token) {
+                    localStorage.setItem('token', result.access_token);
+                    localStorage.setItem('user', JSON.stringify(result.user));
+                    window.location.href = '/';
+                } else {
+                    alert(result.error || '登录失败');
+                }
+            } catch (error) {
+                alert('请求失败: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
