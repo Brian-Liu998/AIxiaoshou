@@ -10,44 +10,20 @@ app = Flask(__name__, static_folder='static')
 CORS(app, supports_credentials=True, origins=['*'])
 
 # 配置
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-12345')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///ainovel.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-key-change-in-production')
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 86400 * 7  # 7天有效期
+app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'dev-jwt-secret-key-12345')
+app.config['JWT_TOKEN_LOCATION'] = ['headers']
+app.config['JWT_HEADER_NAME'] = 'Authorization'
+app.config['JWT_HEADER_TYPE'] = 'Bearer'
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 86400 * 7
 
 # JWT错误处理
-@jwt.unauthorized_loader
-def unauthorized_callback(error):
-    return jsonify({'error': '请先登录', 'redirect': '/login'}), 401
-
-@jwt.invalid_token_loader
-def invalid_token_callback(error):
-    return jsonify({'error': '登录已失效，请重新登录', 'redirect': '/login'}), 401
-
-@jwt.expired_token_loader
-def expired_token_callback(jwt_header, jwt_payload):
-    return jsonify({'error': '登录已过期，请重新登录', 'redirect': '/login'}), 401
-
-# 初始化
-db.init_app(app)
-jwt = JWTManager(app)
-from flask import Flask, request, jsonify, send_from_directory
-from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from flask_sqlalchemy import SQLAlchemy
-from models import db, User, Story
-import requests
-
-app = Flask(__name__, static_folder='static')
-CORS(app, supports_credentials=True)
-
-# 配置
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///ainovel.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-key-change-in-production')
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 86400 * 7  # 7天有效期
+@app.errorhandler(422)
+@app.errorhandler(400)
+def handle_error(e):
+    return jsonify({'error': str(e)}), e.code
 
 # 初始化
 db.init_app(app)
@@ -96,22 +72,19 @@ def static_files(path):
 # ===== 用户认证 =====
 @app.route('/api/register', methods=['POST'])
 def register():
-    data = request.json
-    username = data.get('username', '').strip()
-    email = data.get('email', '').strip()
-    password = data.get('password', '')
+    data = request.get_json(silent=True) or {}
+    username = (data.get('username') or '').strip()
+    email = (data.get('email') or '').strip()
+    password = data.get('password') or ''
     
-    # 验证
     if not username or not email or not password:
         return jsonify({'error': '请填写所有字段'}), 400
     if len(password) < 6:
         return jsonify({'error': '密码至少6位'}), 400
     
-    # 检查用户是否存在
     if User.query.filter((User.username==username) | (User.email==email)).first():
         return jsonify({'error': '用户名或邮箱已存在'}), 400
     
-    # 创建用户
     user = User(username=username, email=email)
     user.set_password(password)
     db.session.add(user)
@@ -121,34 +94,18 @@ def register():
 
 @app.route('/api/login', methods=['POST'])
 def login():
-    if not request.is_json:
-        return jsonify({'error': '请求格式错误'}), 400
-    
-    data = request.json
-    if not data:
-        return jsonify({'error': '请求数据为空'}), 400
-        
-    username = data.get('username', '')
-    password = data.get('password', '')
+    data = request.get_json(silent=True) or {}
+    username = (data.get('username') or '').strip()
+    password = data.get('password') or ''
     
     if not username or not password:
         return jsonify({'error': '请填写用户名和密码'}), 400
     
-    username = username.strip()
-    user = User.query.filter_by(username=username).first()
-    if not user or not user.check_password(password):
-        return jsonify({'error': '用户名或密码错误'}), 401
-def login():
-    data = request.json
-    username = data.get('username', '').strip()
-    password = data.get('password', '')
-    
     user = User.query.filter_by(username=username).first()
     if not user or not user.check_password(password):
         return jsonify({'error': '用户名或密码错误'}), 401
     
-    # 生成token
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
     return jsonify({
         'message': '登录成功',
         'access_token': access_token,
@@ -159,7 +116,7 @@ def login():
 @jwt_required()
 def get_current_user():
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = User.query.get(int(user_id))
     if not user:
         return jsonify({'error': '用户不存在'}), 404
     return jsonify({'user': user.to_dict()})
@@ -169,7 +126,7 @@ def get_current_user():
 @jwt_required()
 def generate_story():
     user_id = get_jwt_identity()
-    data = request.json
+    data = request.get_json(silent=True) or {}
     outline = data.get('outline', '')
     genre = data.get('genre', 'scifi')
     word_count = int(data.get('wordCount', 5000))
@@ -177,7 +134,6 @@ def generate_story():
     if not outline:
         return jsonify({'error': '请输入故事大纲'}), 400
 
-    # 构建提示词
     genre_prompt = GENRE_PROMPTS.get(genre, GENRE_PROMPTS['scifi'])
     genre_name = GENRE_NAMES.get(genre, '科幻')
     
@@ -199,7 +155,6 @@ def generate_story():
     user_prompt = f"故事大纲：{outline}"
 
     try:
-        # 调用 DeepSeek API
         headers = {
             'Authorization': f'Bearer {DEEPSEEK_API_KEY}',
             'Content-Type': 'application/json'
@@ -212,51 +167,10 @@ def generate_story():
                 {'role': 'user', 'content': user_prompt}
             ],
             'temperature': 0.8,
-            'max_tokens': 8192
+            'max_tokens': min(word_count * 2, 8192)
         }
 
-        try:
-            # 调试：打印请求信息
-            print(f"调用DeepSeek API, outline长度: {len(outline)}, genre: {genre}, word_count: {word_count}")
-            
-            # 调用 DeepSeek API
-            headers = {
-                'Authorization': f'Bearer {DEEPSEEK_API_KEY}',
-                'Content-Type': 'application/json'
-            }
-
-            payload = {
-                'model': 'deepseek-chat',
-                'messages': [
-                    {'role': 'system', 'content': system_prompt},
-                    {'role': 'user', 'content': user_prompt}
-                ],
-                'temperature': 0.8,
-                'max_tokens': min(word_count * 2, 8192)  # 限制token数量
-            }
-
-            response = requests.post(
-                DEEPSEEK_API_URL,
-                headers=headers,
-                json=payload,
-                timeout=120
-            )
-
-            # 打印响应状态码用于调试
-            print(f"DeepSeek API响应状态: {response.status_code}")
-            
-            if response.status_code != 200:
-                error_detail = response.text
-                print(f"API错误响应: {error_detail}")
-                return jsonify({'error': f'API调用失败 ({response.status_code}): {error_detail[:200]}'}), 500
-
-            result = response.json()
-            
-            # 检查响应格式
-            if 'choices' not in result or len(result['choices']) == 0:
-                return jsonify({'error': 'API返回格式异常'}), 500
-            
-            story_content = result['choices'][0]['message']['content']
+        response = requests.post(
             DEEPSEEK_API_URL,
             headers=headers,
             json=payload,
@@ -264,14 +178,16 @@ def generate_story():
         )
 
         if response.status_code != 200:
-            return jsonify({'error': f'API调用失败: {response.text}'}), 500
+            return jsonify({'error': f'API调用失败: {response.text[:200]}'}), 500
 
         result = response.json()
+        if 'choices' not in result or len(result['choices']) == 0:
+            return jsonify({'error': 'API返回格式异常'}), 500
+            
         story_content = result['choices'][0]['message']['content']
 
-        # 保存到数据库
         story = Story(
-            user_id=user_id,
+            user_id=int(user_id),
             outline=outline,
             genre=genre_name,
             word_count=len(story_content),
@@ -288,8 +204,6 @@ def generate_story():
             'story_id': story.id
         })
 
-    except requests.exceptions.Timeout:
-        return jsonify({'error': '请求超时，请稍后重试'}), 504
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -298,14 +212,14 @@ def generate_story():
 @jwt_required()
 def get_stories():
     user_id = get_jwt_identity()
-    stories = Story.query.filter_by(user_id=user_id).order_by(Story.created_at.desc()).all()
+    stories = Story.query.filter_by(user_id=int(user_id)).order_by(Story.created_at.desc()).all()
     return jsonify({'stories': [s.to_dict() for s in stories]})
 
 @app.route('/api/stories/<int:story_id>', methods=['GET'])
 @jwt_required()
 def get_story(story_id):
     user_id = get_jwt_identity()
-    story = Story.query.filter_by(id=story_id, user_id=user_id).first()
+    story = Story.query.filter_by(id=story_id, user_id=int(user_id)).first()
     if not story:
         return jsonify({'error': '故事不存在'}), 404
     return jsonify({'story': story.to_dict()})
